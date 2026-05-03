@@ -737,7 +737,8 @@ If you have not used `scp` before, work through this exercise first:
 > **Screenshot 3:** Take a screenshot of `schema.svg` showing all six entities
 > and all five relationships, and insert it here.
 >
-> `[insert screenshot]`
+> `[insert screenshot]`   <img width="1874" height="1020" alt="لقطة شاشة 2026-05-03 122718" src="https://github.com/user-attachments/assets/5ff5a588-9f08-45b3-81dd-ad29d9edebdb" />
+
 
 Add `schema.svg` to `.gitignore` (it is generated, not authored):
 
@@ -812,7 +813,8 @@ SQL?
 > **Screenshot 4:** Take a screenshot of your terminal showing the output of
 > the query from Task 4d (the join across four relations), and insert it here.
 >
-> `[insert screenshot]`
+> `[insert screenshot]`   <img width="1920" height="814" alt="لقطة شاشة 2026-05-03 121443" src="https://github.com/user-attachments/assets/6b670028-5e5c-4498-8e7f-f5da51aaa796" />
+
 
 ---
 
