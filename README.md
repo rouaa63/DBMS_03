@@ -177,14 +177,14 @@ Complete the sketch for all six relations (`author`, `book`, `writes`, `copy`,
 > relational model? What would go wrong if you stored multiple author IDs in a
 > single column of `book`?
 >
-> *Your answer:*
+> *Your answer:*   A many-to-many (N:M) relationship cannot be directly represented in the relational model because each attribute must be atomic (First Normal Form). If multiple author IDs are stored in a single column of the book table, it violates atomicity and makes querying, updating, and enforcing referential integrity impossible. A join relation (writes) is required to decompose the relationship into two one-to-many relationships, ensuring normalization and allowing proper foreign key constraints.
 
 > **Question 1.2:** `loan_id` is a surrogate key even though a loan might seem
 > to be uniquely identified by `(member_no, copy_no, loan_date)`. Name one
 > realistic scenario in which that composite key would fail to be a candidate
 > key.
 >
-> *Your answer:*
+> *Your answer:* Although a loan could theoretically be uniquely identified by (member_no, copy_no, loan_date), this composite key is not always stable or practical. For example, if two loans occur at the same time for the same member and copy (or if system timing resolution is limited), uniqueness may be violated. Therefore, a surrogate key (loan_id) is preferred because it guarantees uniqueness, simplifies foreign key references, and improves performance and maintainability.
 
 ---
 
@@ -349,12 +349,12 @@ git log --oneline
 `writes`. What does this mean in practice if a librarian wants to delete an
 author who has written at least one book in the catalogue?
 
-> *Your answer:*
+> *Your answer:*   ON DELETE RESTRICT prevents the deletion of an author if they are still referenced in the writes table. In practice, if a librarian tries to delete an author who has written at least one book, the database will reject the operation to preserve referential integrity.
 
 **Question 2.2:** `email` in `member` is declared `UNIQUE` but is not the
 primary key. Using the vocabulary from Lecture 03, what kind of key is it?
 
-> *Your answer:*
+> *Your answer:*  Email is a UNIQUE key. It is not a primary key, but it still enforces uniqueness across all tuples in the relation, making it a candidate key.
 
 **Question 2.3:** SQLite does not enforce `CHECK` or `FOREIGN KEY` constraints
 by default. Run the following and observe what happens:
@@ -377,7 +377,7 @@ by default. Run the following and observe what happens:
 > the difference between a constraint declared in DDL and one actually enforced
 > at runtime?
 
-> *Your answer:*
+> *Your answer:*    When PRAGMA foreign_keys is OFF, SQLite does not enforce referential integrity, so invalid inserts (e.g., referencing non-existent members) are allowed. When it is turned ON, SQLite enforces foreign key constraints and rejects invalid inserts with a FOREIGN KEY constraint failed error. This demonstrates the difference between declaring constraints in DDL and actually enforcing them at runtime.
 
 ---
 
@@ -554,7 +554,7 @@ not in a `WHERE` clause. What would happen to Koch's row if you moved this
 condition into `WHERE return_date IS NULL`? Why? Refer to the formal definition
 of the outer join from Lecture 03.
 
-> *Your answer:*
+> *Your answer:*    In a LEFT OUTER JOIN, the condition in the ON clause defines how tables are matched while preserving unmatched rows. If the condition is moved into the WHERE clause, NULL-extended rows (such as members with no active loans) are filtered out, effectively converting the outer join into an inner join. This removes members like Koch from the result.
 
 ### Task 4f – Set Difference
 
@@ -602,7 +602,7 @@ VALUES (999, 1, '2026-05-01');
 > **Question 5.1:** Which specific constraint fired? Name the table and the
 > foreign key column involved.
 >
-> *Your answer:*
+> *Your answer:*  The foreign key constraint on loan.member_no referencing member(member_no) failed, because the inserted member ID does not exist in the parent table.
 
 ### Task 5b – Delete a member with active loans
 
@@ -618,7 +618,7 @@ DELETE FROM member WHERE member_no = 102;
 > `DELETE`. What happens to Schneider's loan row? Is this behaviour desirable
 > for a library system? Justify your answer.
 >
-> *Your answer:*
+> *Your answer:*   If ON DELETE CASCADE is used, deleting a member would automatically delete all related loan records. While this maintains referential integrity automatically, it is usually not desirable in a library system because historical loan records should be preserved for auditing and tracking purposes.
 
 ### Task 5c – Verify the composite primary key of `writes`
 
@@ -632,7 +632,7 @@ INSERT INTO writes VALUES (1, '978-0-201-96426-4');
 > here – but also a *primary key*. Can a relation have two candidate keys? Give
 > an example from the library schema.
 >
-> *Your answer:*
+> *Your answer:*   Yes, a relation can have multiple candidate keys. For example, in the book relation, ISBN is the primary key, but (title, pub_year) could potentially act as another candidate key in certain constrained domains, although it is not chosen as the primary key.
 
 ---
 
@@ -782,7 +782,7 @@ joins. SQL does not prescribe an execution order; the query optimizer may
 reorder these joins freely. Under what condition would reordering a join change
 the *result* of a query? Under what condition is it always safe?
 
-> *Your answer:*
+> *Your answer:*   Join reordering does not change results when joins are associative and commutative (e.g., inner joins with proper foreign key relationships). However, it can change results when outer joins are involved or when filters are applied before vs after joins, as this affects NULL handling and tuple preservation.
 
 **Question B – NULL semantics:**  
 `return_date` is `NULL` for an open loan. `NULL` in SQL does not mean zero or
@@ -790,7 +790,7 @@ false – it means *unknown*. Consider the query `WHERE return_date = NULL`.
 Will it return the open loans? Explain why or why not and write the correct
 form.
 
-> *Your answer:*
+> *Your answer:*    In SQL, NULL represents an unknown value, so comparisons using = NULL always return unknown (not true). Therefore, WHERE return_date = NULL will never return results. The correct syntax is WHERE return_date IS NULL.
 
 **Question C – Surrogate vs. natural key:**  
 `book` uses `isbn` as its natural primary key; all other entities use surrogate
@@ -798,7 +798,7 @@ integer keys. Suppose the library occasionally receives books without an ISBN
 (unpublished manuscripts, internal reports). How would this affect the `isbn`
 primary key? What design change would you make?
 
-> *Your answer:*
+> *Your answer:*  If ISBN is not available, the natural key becomes invalid. In this case, a surrogate key (e.g., book_id) should be introduced to ensure uniqueness and stability of references.
 
 **Question D – Relational algebra limitations:**  
 Suppose the library wants to find all members who have borrowed the same copy
@@ -808,7 +808,7 @@ operators of the relational algebra (σ, π, ρ, ×, −) without aggregation?
 What does this tell you about the relationship between relational algebra and
 SQL?
 
-> *Your answer:*
+> *Your answer:*   No, classical relational algebra cannot directly express counting or detecting repeated occurrences without extensions like aggregation. SQL extends relational algebra with GROUP BY and COUNT, making it more expressive for real-world analytical queries.
 
 > **Screenshot 4:** Take a screenshot of your terminal showing the output of
 > the query from Task 4d (the join across four relations), and insert it here.
