@@ -469,11 +469,15 @@ the result.
 Algebra:
 $$\sigma_{\mathrm{shelf\_loc}\ \mathrm{LIKE}\ \texttt{'A\%'}}(\textsc{copy})$$
 
-SQL:
+SQL:  
 
 ```sql
--- write your query here
-```
+-- write your query here  
+ SELECT *
+FROM copy
+WHERE shelf_loc LIKE 'A%';
+
+  ```
 
 > Expected result: copy\_no 1 and 2.
 
@@ -488,6 +492,8 @@ SQL:
 
 ```sql
 -- write your query here
+SELECT title, pub_year
+FROM book;
 ```
 
 > Expected result: three rows, two columns each.
@@ -504,9 +510,16 @@ SQL:
 
 ```sql
 -- write your query here
+ SELECT isbn, shelf_loc
+FROM copy
+WHERE shelf_loc >= 'B';
+
 ```
 
 > Expected result: copy\_no 3 (B-07) and copy\_no 4 (C-12).
+> <img width="908" height="403" alt="image" src="https://github.com/user-attachments/assets/7664e982-2f17-48dc-8d2d-65e157223b18" />
+
+
 
 ### Task 4d – Equi-Join (⋈)
 
@@ -525,6 +538,13 @@ SQL:
 
 ```sql
 -- write your query here
+SELECT m.full_name, b.title
+FROM loan l
+JOIN member m ON l.member_no = m.member_no
+JOIN copy c ON l.copy_no = c.copy_no
+JOIN book b ON c.isbn = b.isbn
+WHERE l.return_date IS NULL;
+
 ```
 
 > Expected result: two rows – Schneider borrowing *Database Management Systems*,
@@ -548,6 +568,7 @@ GROUP BY m.member_no, m.full_name;
 ```
 
 > Expected result: Müller 1, Schneider 1, Koch 0.
+> 
 
 **Question 4.1:** The condition `l.return_date IS NULL` is in the `ON` clause,
 not in a `WHERE` clause. What would happen to Koch's row if you moved this
@@ -569,6 +590,9 @@ In SQL, set difference is expressed with `EXCEPT`:
 
 ```sql
 -- write your query here
+SELECT isbn FROM book
+EXCEPT
+SELECT isbn FROM copy JOIN loan ON copy.copy_no = loan.copy_no;
 ```
 
 > Expected result: *The C Programming Language* (copy 4 was never loaned).
